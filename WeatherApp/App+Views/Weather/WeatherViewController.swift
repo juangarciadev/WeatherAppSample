@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import RxSwift
 
 protocol WeatherViewControllerDelegate: class {
     func showChooseLocationView()
@@ -16,16 +17,44 @@ class WeatherViewController: UIViewController {
     
     let viewModel = WeatherViewModel()
     weak var delegate: WeatherViewControllerDelegate? = nil
+    let disposeBag = DisposeBag()
     
     @IBOutlet var tableView: UITableView!
     
-    //MARK: Lifecycle methods
+    // MARK: Lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         title = .loading
         
         viewModel.getCurrentLocation()
+        addModelObservers()
+        setupTableView()
+    }
+    
+    // MARK: View setup
+    func addModelObservers() {
+        viewModel.weatherDataObservable
+            .subscribe(onNext: { (weatherData) in
+                dump(weatherData)
+            })
+            .disposed(by: disposeBag)
+        viewModel.locationObservable
+            .subscribe(onNext: { [weak self] (location) in
+                if let location = location {
+                    self?.title = "\(location.city), \(location.country)"
+                }
+            })
+            .disposed(by: disposeBag)
+        viewModel.errorObservable
+            .subscribe(onNext: { [weak self] (error) in
+                self?.modalErrorAlert(message: error.localizedDescription)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    func setupTableView() {
+        tableView.tableFooterView = UIView()
     }
 }
 
@@ -35,7 +64,7 @@ fileprivate extension String {
 
 // MARK: - Action buttons
 extension WeatherViewController {
-
+    
     @IBAction func chooseLocationButtonAction(_ sender: UIBarButtonItem) {
         if let delegate = delegate {
             delegate.showChooseLocationView()

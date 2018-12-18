@@ -9,6 +9,7 @@
 import UIKit
 
 protocol ChooseLocationViewControllerDelegate: class {
+    func didSelect(_ location: Location)
 }
 
 class ChooseLocationViewController: UIViewController {
@@ -19,14 +20,14 @@ class ChooseLocationViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
     lazy var searchBar = UISearchBar(frame: CGRect.zero)
     
-    //MARK: Lifecycle methods
+    // MARK: Lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
         addSearchBarInNavigationBar()
     }
     
-    //MARK: View setup
+    // MARK: View setup
     func addSearchBarInNavigationBar() {
         searchBar.placeholder = .enterCity
         searchBar.sizeToFit()
@@ -41,6 +42,7 @@ fileprivate extension String {
     static let enterCity = NSLocalizedString("Enter city", comment: "Placeholder for search bar")
     static let currentLocation = NSLocalizedString("Current Location", comment: "Title for locaiton cell")
     static let recents = NSLocalizedString("RECENTS", comment: "Title for section header")
+    static let disabled = NSLocalizedString("Disabled", comment: "Subtitle for location cell")
 }
 
 // MARK: - Table view data source
@@ -51,10 +53,10 @@ extension ChooseLocationViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
+        switch LocationSections(rawValue: section) {
+        case .current?:
             return 1
-        case 1:
+        case .recent?:
             return viewModel.recentLocation.count
         default:
             return 0
@@ -67,14 +69,19 @@ extension ChooseLocationViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        switch indexPath.section {
-        case 0:
+        switch LocationSections(rawValue: indexPath.section) {
+        case .current?:
             cell.titleLabel.text = .currentLocation
-            cell.subtitleLabel.text = ""
-        case 1:
+            
+            if let currentLocation = LocationManager.shared.location {
+                cell.subtitleLabel.text = "\(currentLocation.city), \(currentLocation.country)"
+            } else {
+                cell.subtitleLabel.text = .disabled
+            }
+        case .recent?:
             let recentLocation = viewModel.recentLocation[indexPath.row]
             
-            cell.titleLabel.text = recentLocation.cityName
+            cell.titleLabel.text = recentLocation.city
             cell.subtitleLabel.text = recentLocation.country
         default:
             break
@@ -84,8 +91,8 @@ extension ChooseLocationViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch section {
-        case 1:
+        switch LocationSections(rawValue: section) {
+        case .recent?:
             return .recents
         default:
             return nil
@@ -97,6 +104,21 @@ extension ChooseLocationViewController: UITableViewDataSource {
 extension ChooseLocationViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var locationSelected: Location? = nil
+        switch LocationSections(rawValue: indexPath.section) {
+        case .current?:
+            if let currentLocation = LocationManager.shared.location {
+                locationSelected = currentLocation
+            }
+        case .recent?:
+            locationSelected = viewModel.recentLocation[indexPath.row]
+        default:
+            break
+        }
+        if let delegate = delegate, let location = locationSelected {
+            delegate.didSelect(location)
+        }
+        
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }

@@ -20,6 +20,11 @@ final class Coordinator {
         let weatherVC = navigationController.viewControllers.first as! WeatherViewController
         weatherVC.delegate = self
     }
+    
+    func update(_ location: Location) {
+        let weatherVC = navigationController.viewControllers.first as! WeatherViewController
+        weatherVC.viewModel.getCurrentWeather(for: location)
+    }
 }
 
 extension Coordinator: WeatherViewControllerDelegate {
@@ -32,6 +37,11 @@ extension Coordinator: WeatherViewControllerDelegate {
 
 extension Coordinator: ChooseLocationViewControllerDelegate {
     
+    func didSelect(_ location: Location) {
+        update(location)
+        
+        navigationController.dismiss(animated: true)
+    }
 }
 
 extension UIStoryboard {

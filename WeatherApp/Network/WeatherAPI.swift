@@ -14,12 +14,15 @@ final class WeatherAPI: NSObject {
     static let shared = WeatherAPI()
     let disposeBag = DisposeBag()
     
+    // Use singleton instance
+    private override init(){}
+    
     enum FailureReason: Int, Error {
         case unAuthorized = 401
         case notFound = 404
     }
     
-    func getCurrentWeather(cityName: String) -> Observable<WeatherData> {
+    func getCurrentWeather(for city: String, and countryCode: String) -> Observable<WeatherData> {
         
         return Observable.create { observer -> Disposable in
             guard let key = GlobalConfiguration.getOpenWeatherMapAPIKey() else {
@@ -27,15 +30,10 @@ final class WeatherAPI: NSObject {
                 return Disposables.create()
             }
             
-            guard let sanitizedCityName = cityName.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else {
-                assertionFailure("Error: while sanitizing city name")
-                return Disposables.create()
-            }
-            
             // Set up the URL request
             let endpointString = GlobalConfiguration.OpenWeatherMapURLString
             let parameters = [
-                GlobalConfiguration.CityNameQueryParameter: sanitizedCityName,
+                GlobalConfiguration.CityNameQueryParameter: "\(city),\(countryCode)",
                 GlobalConfiguration.AppIdQueryParameter: key
             ]
             

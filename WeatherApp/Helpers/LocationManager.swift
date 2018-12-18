@@ -13,20 +13,30 @@ import RxSwift
 class LocationManager: NSObject {
     
     static let shared = LocationManager()
-    let locationManager = CLLocationManager()
+    private let locationManager = CLLocationManager()
     
-    //TODO: Replace with a model object
-    typealias placeData = (city: String, country: String, countryCode: String)
-    fileprivate let placeSubject = PublishSubject<placeData>()
-    var place: Observable<placeData> {
-        return placeSubject.asObserver()
+    fileprivate let locationVariable = Variable<Location?>(nil)
+    var locationObservable: Observable<Location?> {
+        return locationVariable.asObservable()
     }
+    var location: Location? {
+        return locationVariable.value
+    }
+    
+    // MARK: Lifecycle methods
+    // Use singleton instance
+    private override init(){}
     
     // MARK: Public methods
     func requestLocationPermissions() {
         locationManager.delegate = self
         locationManager.requestAlwaysAuthorization()
         locationManager.requestWhenInUseAuthorization()
+    }
+    
+    func stopGettingUserLocation() {
+        locationManager.delegate = nil
+        locationManager.stopUpdatingLocation()
     }
     
     func getCurrentUserLocation() {
@@ -37,20 +47,23 @@ class LocationManager: NSObject {
         }
     }
     
-    func getLocationName(location: CLLocation) {
+    fileprivate func getLocationName(location: CLLocation) {
         fetchCityAndCountry(from: location) { [weak self] city, country, countryCode, error in
             guard let city = city,
                 let country = country,
                 let countryCode = countryCode,
                 error == nil else {
-                print("Error occurred while fetching city and country")
-                self?.placeSubject.onError(error!)
-                return
+                    print("Error occurred while fetching city and country")
+                    return
             }
-
+            
             print(city + ", " + country) // Rio de Janeiro, Brazil
-            self?.placeSubject.onNext((city, country, countryCode))
+            self?.locationVariable.value = Location(city, country, countryCode)
         }
+    }
+    
+    fileprivate func showDefaultLocation() {
+        locationVariable.value = Location("Montevideo", "Uruguay", "UY")
     }
 }
 
@@ -69,6 +82,7 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = manager.location else {
             print("Warning: location is nil")
+            showDefaultLocation()
             return
         }
         print("locations count:", locations.count)
@@ -78,7 +92,7 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error.localizedDescription)
         //TODO: In case of error display the last recent location
-        placeSubject.onNext((city: "Montevideo", country: "Uruguay", countryCode: "UY"))
+        showDefaultLocation()
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -86,7 +100,7 @@ extension LocationManager: CLLocationManagerDelegate {
             getCurrentUserLocation()
         } else {
             //TODO: If location was denied show an alert to change the selection on Device Settings.
-            placeSubject.onNext((city: "Montevideo", country: "Uruguay", countryCode: "UY"))
+            showDefaultLocation()
         }
     }
 }

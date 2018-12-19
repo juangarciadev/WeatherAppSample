@@ -26,10 +26,12 @@ class WeatherViewController: UIViewController {
         super.viewDidLoad()
         
         title = .loading
+
         
         viewModel.getCurrentLocation()
         addModelObservers()
         setupTableView()
+        setupTransparentNavigationBar()
     }
     
     // MARK: View setup
@@ -55,6 +57,12 @@ class WeatherViewController: UIViewController {
     
     func setupTableView() {
         tableView.tableFooterView = UIView()
+    }
+    
+    func setupTransparentNavigationBar() {
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
     }
 }
 

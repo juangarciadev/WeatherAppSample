@@ -21,6 +21,7 @@ struct GlobalConfiguration {
     static let OpenWeatherMapURLString = "https://api.openweathermap.org/data/2.5/weather"
     static let OpenWeatherMapAssetURLString = "http://openweathermap.org/img/w/"
     
-    static let CityNameQueryParameter = "q"
+    static let CityQueryParameter = "q"
     static let AppIdQueryParameter = "appid"
+    static let UnitsQueryParameter = "units"
 }

@@ -53,7 +53,7 @@ extension ChooseLocationViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch LocationSections(rawValue: section) {
+        switch LocationSection(rawValue: section) {
         case .current?:
             return 1
         case .recent?:
@@ -69,7 +69,7 @@ extension ChooseLocationViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        switch LocationSections(rawValue: indexPath.section) {
+        switch LocationSection(rawValue: indexPath.section) {
         case .current?:
             cell.titleLabel.text = .currentLocation
             
@@ -91,7 +91,7 @@ extension ChooseLocationViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch LocationSections(rawValue: section) {
+        switch LocationSection(rawValue: section) {
         case .recent?:
             return .recents
         default:
@@ -105,7 +105,7 @@ extension ChooseLocationViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var locationSelected: Location? = nil
-        switch LocationSections(rawValue: indexPath.section) {
+        switch LocationSection(rawValue: indexPath.section) {
         case .current?:
             if let currentLocation = LocationManager.shared.location {
                 locationSelected = currentLocation

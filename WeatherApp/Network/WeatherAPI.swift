@@ -21,8 +21,8 @@ final class WeatherAPI: NSObject {
         case unAuthorized = 401
         case notFound = 404
     }
-    
-    func getCurrentWeather(for city: String, and countryCode: String) -> Observable<WeatherData> {
+        
+    func getCurrentWeather(for city: String, _ countryCode: String, and tempScale: TemperatureScale) -> Observable<WeatherData> {
         
         return Observable.create { observer -> Disposable in
             guard let key = GlobalConfiguration.getOpenWeatherMapAPIKey() else {
@@ -33,12 +33,11 @@ final class WeatherAPI: NSObject {
             // Set up the URL request
             let endpointString = GlobalConfiguration.OpenWeatherMapURLString
             let parameters = [
-                GlobalConfiguration.CityNameQueryParameter: "\(city),\(countryCode)",
+                GlobalConfiguration.CityQueryParameter: "\(city),\(countryCode)",
+                GlobalConfiguration.UnitsQueryParameter: tempScale.rawValue,
                 GlobalConfiguration.AppIdQueryParameter: key
             ]
-            
-            print("final request string:", endpointString)
-            
+
             guard let url = URL(string: endpointString) else {
                 print("error: URL NOT valid")
                 return Disposables.create()
@@ -71,5 +70,15 @@ final class WeatherAPI: NSObject {
                 .disposed(by: self.disposeBag)
             return Disposables.create()
         }
+    }
+    
+    func getIconURL(for iconID: String) -> URL? {
+        let endpointString = "\(GlobalConfiguration.OpenWeatherMapAssetURLString)\(iconID).png"
+        guard let url = URL(string: endpointString) else {
+            print("error: URL NOT valid")
+            return nil
+        }
+        
+        return url
     }
 }

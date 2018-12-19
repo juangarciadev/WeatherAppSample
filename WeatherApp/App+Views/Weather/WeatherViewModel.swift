@@ -9,6 +9,12 @@
 import Foundation
 import RxSwift
 
+enum WeatherRow: Int {
+    case condition = 0
+    case mainData
+    case detail
+}
+
 class WeatherViewModel {
     
     let disposeBag = DisposeBag()
@@ -43,7 +49,7 @@ class WeatherViewModel {
         LocationManager.shared.stopGettingUserLocation()
         
         WeatherAPI.shared
-            .getCurrentWeather(for: location.city, and: location.countryCode)
+            .getCurrentWeather(for: location.city, location.countryCode, and: location.tempScale)
             .subscribe(onNext: { [weak self] weatherData in
                 self?.locationVariable.value = location
                 self?.weatherDataVariable.value = weatherData
@@ -52,4 +58,59 @@ class WeatherViewModel {
             })
             .disposed(by: disposeBag)
     }
+}
+
+// MARK: - Table view helper methods
+extension WeatherViewModel {
+    
+    func rows() -> Int {
+        if weatherDataVariable.value != nil {
+            return 3
+        }
+        
+        return 0
+    }
+    
+    func getHeight(for row: Int) -> CGFloat {
+        switch WeatherRow(rawValue: row) {
+        case .condition?:
+            return 250
+        default:
+            return 70
+        }
+    }
+    
+    func getCondition() -> (temp: Double?, iconURL: URL?, description: String?) {
+        let weatherData = weatherDataVariable.value
+        let mainData = weatherData?.main
+        let condition = weatherData?.weather.first
+        
+        var iconURL: URL? = nil
+        if let iconID = condition?.icon {
+            iconURL = WeatherAPI.shared.getIconURL(for: iconID)
+        }
+        
+        return (mainData?.temp, iconURL, condition?.description.capitalized)
+    }
+    
+    func getMainData() -> (humidity: Float?, tempMin: Double?, tempMax: Double?, windSpeed: Double?) {
+        let weatherData = weatherDataVariable.value
+        let mainData = weatherData?.main
+        let wind = weatherData?.wind
+        
+        
+        return (mainData?.humidity, mainData?.temp_min, mainData?.temp_max, wind?.speed)
+    }
+    
+    //TOOD: Download more weather details to display
+    func getDetail() -> (conditionTitle: String?, value: Int?) {
+        let weatherData = weatherDataVariable.value
+        let mainData = weatherData?.main
+        
+        return (.pressure, mainData?.pressure)
+    }
+}
+
+private extension String {
+    static let pressure = NSLocalizedString("Pressure", comment: "Title for cell")
 }

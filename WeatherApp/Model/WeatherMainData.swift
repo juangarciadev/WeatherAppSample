@@ -1,5 +1,5 @@
 //
-//  MainData.swift
+//  WeatherMainData.swift
 //  WeatherApp
 //
 //  Created by Juan Garcia on 12/16/18.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MainData: Codable {
+struct WeatherMainData: Codable {
     let temp: Double
     let pressure: Int?
     let humidity: Float?

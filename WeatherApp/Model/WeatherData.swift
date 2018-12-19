@@ -10,6 +10,7 @@ import Foundation
 
 struct WeatherData: Codable {
     let dt: Int
-    let main: MainData
-    let weather: [WeatherConditions]
+    let main: WeatherMainData
+    let wind: WeatherWind
+    let weather: [WeatherCondition]
 }

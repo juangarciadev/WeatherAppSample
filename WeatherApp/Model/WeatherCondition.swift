@@ -1,5 +1,5 @@
 //
-//  WeatherConditions.swift
+//  WeatherCondition.swift
 //  WeatherApp
 //
 //  Created by Juan Garcia on 12/16/18.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct WeatherConditions: Codable {
+struct WeatherCondition: Codable {
     let id: Int
     let main: String
     let description: String

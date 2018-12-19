@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum LocationSections: Int {
+enum LocationSection: Int {
     case current = 0
     case recent
 }
@@ -17,10 +17,10 @@ class ChooseLocationViewModel {
     
     //TODO: Store and get this data from NSUserDefaults
     let recentLocation = [
-        Location("Montevideo", "Uruguay", "UY"),
-        Location("London", "England, United Kindom", "UK"),
-        Location("São Paulo", "Brazil", "BR"),
-        Location("Buenos Aires", "Argentina", "AR"),
-        Location("Munich", "Germany", "DE")
+        Location("Montevideo", "Uruguay", "UY", .celsius),
+        Location("London", "England, United Kindom", "UK", .celsius),
+        Location("São Paulo", "Brazil", "BR", .fahrenheit),
+        Location("Buenos Aires", "Argentina", "AR", .celsius),
+        Location("Munich", "Germany", "DE", .celsius)
     ]
 }

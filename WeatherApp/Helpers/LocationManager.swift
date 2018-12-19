@@ -58,12 +58,14 @@ class LocationManager: NSObject {
             }
             
             print(city + ", " + country) // Rio de Janeiro, Brazil
-            self?.locationVariable.value = Location(city, country, countryCode)
+            
+            let tempScale: TemperatureScale = Locale.current.usesMetricSystem ? .celsius : .fahrenheit
+            self?.locationVariable.value = Location(city, country, countryCode, tempScale)
         }
     }
     
     fileprivate func showDefaultLocation() {
-        locationVariable.value = Location("Montevideo", "Uruguay", "UY")
+        locationVariable.value = Location("Montevideo", "Uruguay", "UY", .celsius)
     }
 }
 
@@ -71,6 +73,7 @@ class LocationManager: NSObject {
 extension LocationManager: CLLocationManagerDelegate {
     
     func fetchCityAndCountry(from location: CLLocation, completion: @escaping (_ city: String?, _ country:  String?, _ countryCode: String?, _ error: Error?) -> ()) {
+        
         CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
             completion(placemarks?.first?.locality,
                        placemarks?.first?.country,

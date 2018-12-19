@@ -6,7 +6,8 @@ target 'WeatherApp' do
   use_frameworks!
 
   # Pods for WeatherApp
-pod 'Alamofire', '4.8.0'
-pod 'RxSwift', '4.4'
+  pod 'Alamofire', '4.8.0'
+  pod 'RxSwift', '4.4'
+  pod 'Kingfisher', '4.10.1'
 
 end
